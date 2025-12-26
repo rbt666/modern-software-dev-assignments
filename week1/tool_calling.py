@@ -70,7 +70,24 @@ TOOL_REGISTRY: Dict[str, Callable[..., str]] = {
 # ==========================
 
 # TODO: Fill this in!
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """
+You are an AI assistant that can call tools to accomplish tasks.
+
+Available Tools:
+- Tool name: output_every_func_return_type
+  Description: Analyzes a Python file and returns all function names with their return types
+  Parameters:
+    - file_path (string, optional): Path to the Python file to analyze
+  
+When asked to call a tool, respond with a JSON object in this format:
+{
+    "tool": "<tool_name>",
+    "args": {
+        "<param_name>": "<param_value>"
+    }
+}
+Output only the JSON object, no additional text.
+"""
 
 
 def resolve_path(p: str) -> str:
@@ -109,6 +126,7 @@ def run_model_for_tool_call(system_prompt: str) -> Dict[str, Any]:
         options={"temperature": 0.3},
     )
     content = response.message.content
+    print("Model output111:", content)
     return extract_tool_call(content)
 
 
@@ -138,12 +156,12 @@ def compute_expected_output() -> str:
     return output_every_func_return_type(__file__)
 
 
-def test_your_prompt(system_prompt: str) -> bool:
+def your_prompt() -> bool:
     """Run once: require the model to produce a valid tool call; compare tool output to expected."""
     expected = compute_expected_output()
     for _ in range(NUM_RUNS_TIMES):
         try:
-            call = run_model_for_tool_call(system_prompt)
+            call = run_model_for_tool_call(YOUR_SYSTEM_PROMPT)
         except Exception as exc:
             print(f"Failed to parse tool call: {exc}")
             continue
@@ -165,4 +183,4 @@ def test_your_prompt(system_prompt: str) -> bool:
 
 
 if __name__ == "__main__":
-    test_your_prompt(YOUR_SYSTEM_PROMPT)
+    your_prompt()

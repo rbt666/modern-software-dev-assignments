@@ -37,9 +37,16 @@ QUESTION = (
 
 
 # TODO: Fill this in!
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """
+You are an expert Python developer who writes clean, correct code based on provided documentation.
+When given context documentation:
+1. Read and understand the documentation carefully
+2. Use ONLY the information provided in the context - do not make assumptions
+3. Follow all requirements exactly as specified
+4. Generate working Python code with necessary imports
+5. Output the code in a properly formatted code block
 
-
+Important: Base your implementation strictly on the documented API specifications."""
 # For this simple example
 # For this coding task, validate by required snippets rather than exact string
 REQUIRED_SNIPPETS = [
@@ -56,7 +63,7 @@ def YOUR_CONTEXT_PROVIDER(corpus: List[str]) -> List[str]:
 
     For example, return [] to simulate missing context, or [corpus[0]] to include the API docs.
     """
-    return []
+    return corpus if corpus else []
 
 
 def make_user_prompt(question: str, context_docs: List[str]) -> str:
@@ -89,9 +96,9 @@ def extract_code_block(text: str) -> str:
     return text.strip()
 
 
-def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]], List[str]]) -> bool:
+def your_prompt() -> bool:
     """Run up to NUM_RUNS_TIMES and return True if any output matches EXPECTED_OUTPUT."""
-    context_docs = context_provider(CORPUS)
+    context_docs = YOUR_CONTEXT_PROVIDER(CORPUS)
     user_prompt = make_user_prompt(QUESTION, context_docs)
 
     for idx in range(NUM_RUNS_TIMES):
@@ -99,7 +106,7 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
         response = chat(
             model="llama3.1:8b",
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": YOUR_SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt},
             ],
             options={"temperature": 0.0},
@@ -120,4 +127,4 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
 
 
 if __name__ == "__main__":
-    test_your_prompt(YOUR_SYSTEM_PROMPT, YOUR_CONTEXT_PROVIDER)
+    your_prompt()

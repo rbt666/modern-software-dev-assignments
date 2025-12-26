@@ -7,8 +7,12 @@ load_dotenv()
 NUM_RUNS_TIMES = 5
 
 # TODO: Fill this in!
-YOUR_SYSTEM_PROMPT = ""
-
+YOUR_SYSTEM_PROMPT = """
+You are an expert at reversing the order of letters in words. 
+Given a word, you will reverse the order of its letters and output only the reversed word.
+"helloworld": "dlrowolleh";
+"nextdoor": "roodtxen";
+"""
 USER_PROMPT = """
 Reverse the order of letters in the following word. Only output the reversed word, no other text:
 
@@ -18,7 +22,7 @@ httpstatus
 
 EXPECTED_OUTPUT = "sutatsptth"
 
-def test_your_prompt(system_prompt: str) -> bool:
+def your_prompt() -> bool:
     """Run the prompt up to NUM_RUNS_TIMES and return True if any output matches EXPECTED_OUTPUT.
 
     Prints "SUCCESS" when a match is found.
@@ -28,7 +32,7 @@ def test_your_prompt(system_prompt: str) -> bool:
         response = chat(
             model="mistral-nemo:12b",
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": YOUR_SYSTEM_PROMPT},
                 {"role": "user", "content": USER_PROMPT},
             ],
             options={"temperature": 0.5},
@@ -43,4 +47,4 @@ def test_your_prompt(system_prompt: str) -> bool:
     return False
 
 if __name__ == "__main__":
-    test_your_prompt(YOUR_SYSTEM_PROMPT)
+    your_prompt()

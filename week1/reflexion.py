@@ -13,9 +13,15 @@ You are a coding assistant. Output ONLY a single fenced Python code block that d
 the function is_valid_password(password: str) -> bool. No prose or comments.
 Keep the implementation minimal.
 """
-
-# TODO: Fill this in!
-YOUR_REFLEXION_PROMPT = ""
+YOUR_REFLEXION_PROMPT = """
+对于一个密码，必须符合如下条件
+长度大于等于8，
+包含大写字母，
+包含小写字母，
+包含数字，
+包含特殊字符(!@#$%^&*()-_)，
+不能包含空白字符
+"""
 
 
 # Ground-truth test suite used to evaluate generated code
@@ -93,10 +99,9 @@ def generate_initial_function(system_prompt: str) -> str:
 
 def your_build_reflexion_context(prev_code: str, failures: List[str]) -> str:
     """TODO: Build the user message for the reflexion step using prev_code and failures.
-
-    Return a string that will be sent as the user content alongside the reflexion system prompt.
-    """
-    return ""
+- Input: password1! → expected False, got True. Failing checks: missing uppercase
+- Input: Password! → expected False, got True. Failing checks: missing digit    """
+    return f"{SYSTEM_PROMPT},请检查你生成的代码，确认是否符合条件"
 
 
 def apply_reflexion(
@@ -118,13 +123,9 @@ def apply_reflexion(
     return extract_code_block(response.message.content)
 
 
-def run_reflexion_flow(
-    system_prompt: str,
-    reflexion_prompt: str,
-    build_context: Callable[[str, List[str]], str],
-) -> bool:
+def run_reflexion_flow() -> bool:
     # 1) Generate initial function
-    initial_code = generate_initial_function(system_prompt)
+    initial_code = generate_initial_function(SYSTEM_PROMPT)
     print("Initial code:\n" + initial_code)
     func = load_function_from_code(initial_code)
     passed, failures = evaluate_function(func)
@@ -135,7 +136,7 @@ def run_reflexion_flow(
         print(f"FAILURE (initial implementation failed some tests): {failures}")
 
     # 2) Single reflexion iteration
-    improved_code = apply_reflexion(reflexion_prompt, build_context, initial_code, failures)
+    improved_code = apply_reflexion(YOUR_REFLEXION_PROMPT, your_build_reflexion_context, initial_code, failures)
     print("\nImproved code:\n" + improved_code)
     improved_func = load_function_from_code(improved_code)
     passed2, failures2 = evaluate_function(improved_func)
@@ -150,4 +151,4 @@ def run_reflexion_flow(
 
 
 if __name__ == "__main__":
-    run_reflexion_flow(SYSTEM_PROMPT, YOUR_REFLEXION_PROMPT, your_build_reflexion_context)
+    run_reflexion_flow()

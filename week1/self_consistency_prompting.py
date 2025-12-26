@@ -9,11 +9,12 @@ load_dotenv()
 NUM_RUNS_TIMES = 5
 
 # TODO: Fill this in! Try to get as close to 100% correctness across all runs as possible.
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """
+you are a AI assistant. 分析下面一个问题，分别思考5遍给出答案，从中选出最适合的答案作为最终答案。
+"""
 
 USER_PROMPT = """
 Solve this problem, then give the final answer on the last line as "Answer: <number>".
-
 Henry made two stops during his 60-mile bike trip. He first stopped after 20
 miles. His second stop was 15 miles before the end of the trip. How many miles
 did he travel between his first and second stops?
@@ -39,7 +40,7 @@ def extract_final_answer(text: str) -> str:
     return text.strip()
 
 
-def test_your_prompt(system_prompt: str) -> bool:
+def your_prompt() -> bool:
     """Run the prompt NUM_RUNS_TIMES, majority-vote on the extracted 'Answer: ...' lines.
 
     Prints "SUCCESS" if the majority answer equals EXPECTED_OUTPUT.
@@ -50,7 +51,7 @@ def test_your_prompt(system_prompt: str) -> bool:
         response = chat(
             model="llama3.1:8b",
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": YOUR_SYSTEM_PROMPT},
                 {"role": "user", "content": USER_PROMPT},
             ],
             options={"temperature": 1},
@@ -81,6 +82,6 @@ def test_your_prompt(system_prompt: str) -> bool:
 
 
 if __name__ == "__main__":
-    test_your_prompt(YOUR_SYSTEM_PROMPT)
+    your_prompt()
 
 
